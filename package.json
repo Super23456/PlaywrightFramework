@@ -30,6 +30,7 @@
     "@axe-core/playwright": "^4.8.5",
     "@playwright/test": "^1.42.1",
     "checkly": "^4.6.2",
+    "cypress-qase-reporter": "^1.4.3",
     "dotenv": "^16.4.5",
     "mustache": "^4.2.0",
     "playwright-qase-reporter": "^1.2.2"

@@ -45,8 +45,8 @@ LT_ACCESS_KEY = Your lambdatest access key
 If you want to connect with QASE add the next variables:
 
 ```
-QASE_TOKEN= Qase token for playwright
-QASE_PROJECT_CODE= Qase project to connect 
+QASE_TOKEN=68bd7672d7f8712ba6f683eb1728a0c2c9492f630836717376893e24389e0e33
+QASE_PROJECT_CODE=playwright
 ```
 
 You can follow the Qase documentation to find the values.
