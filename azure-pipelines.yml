@@ -1,0 +1,66 @@
+name: Tests HTML Reporter
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+jobs:
+  test:
+    timeout-minutes: 60
+    name: Run Test
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{vars.BASE_URL}}
+      LOCALE: ${{vars.LOCALE}}
+      USER_NAME: ${{secrets.USER_NAME}}
+      PASSWORD: ${{secrets.PASSWORD}}
+      LT_USERNAME: ${{secrets.LT_USERNAME}}
+      LT_ACCESS_KEY: ${{secrets.LT_ACCESS_KEY}}
+      EFFIZIENTE_API_URL: ${{vars.EFFIZIENTE_API_URL}}
+      EFFIZIENTE_URL: ${{vars.EFFIZIENTE_URL}}
+      EFFIZIENTE_COMPANY: ${{secrets.EFFIZIENTE_COMPANY}}
+      EFFIZIENTE_NORMAL_USER: ${{secrets.EFFIZIENTE_NORMAL_USER}}
+      EFFIZIENTE_NORMAL_PASSWORD: ${{secrets.EFFIZIENTE_NORMAL_PASSWORD}}
+      EFFIZIENTE_ADMIN_USER: ${{secrets.EFFIZIENTE_ADMIN_USER}}
+      EFFIZIENTE_ADMIN_PASSWORD: ${{secrets.EFFIZIENTE_ADMIN_PASSWORD}}
+      ZEROSTEP_TOKEN: ${{secrets.ZEROSTEP_TOKEN}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps
+
+      - run: npx playwright install-deps
+
+      - name: Run Playwright tests 
+        run: PLAYWRIGHT_HTML_REPORT=report PLAYWRIGHT_JUNIT_OUTPUT_NAME=report/results.xml npx playwright test tests/Effiziente tests/Google tests/SauceDemo --reporter=html,junit
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: report/
+          retention-days: 5
+
+      - name: Publish to Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ github.workspace }}/report/
+
+      # Upload xml as artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: java-junit
+          path: ${{ github.workspace }}/report/results.xml
+
+      - name: Test Report Junit
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Junit Tests           # Name of the check run which will be created
+          path: ${{ github.workspace }}/report/*.xml     # Path to test results
+          reporter: java-junit       # Format of test results
